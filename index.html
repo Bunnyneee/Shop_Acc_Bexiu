@@ -32,6 +32,29 @@
       padding: 1rem;
       margin-bottom: 1rem;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .tab-list {
+      list-style: none;
+      display: flex;
+      gap: 1rem;
+      margin: 0;
+      padding: 0;
+    }
+    .tab {
+      padding: 0.5rem 1rem;
+      background-color: #ffd1e6;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #fff;
+    }
+    .tab.active {
+      background-color: #ff71ab;
     }
     .acc-list {
       display: grid;
@@ -80,14 +103,20 @@
   <header>🌸 Shop Acc Bunny 🌸</header>
   <div class="container">
     <div class="filter">
-      <label for="filterType">Lọc theo liên kết:</label>
-      <select id="filterType">
-        <option value="all">Tất cả</option>
-        <option value="Gmail">Gmail</option>
-        <option value="Facebook">Facebook</option>
-        <option value="Facebook Die">Facebook Die</option>
-        <option value="Game Center">Game Center</option>
-      </select>
+      <div>
+        <label for="filterType">Lọc theo liên kết:</label>
+        <select id="filterType">
+          <option value="all">Tất cả</option>
+          <option value="Gmail">Gmail</option>
+          <option value="Facebook">Facebook</option>
+          <option value="Facebook Die">Facebook Die</option>
+          <option value="Game Center">Game Center</option>
+        </select>
+      </div>
+      <ul class="tab-list">
+        <li class="tab active" data-tab="available">Đang bán</li>
+        <li class="tab" data-tab="sold">Đã bán</li>
+      </ul>
     </div>
     <div class="acc-list" id="accList">
       <!-- Các acc sẽ được hiển thị ở đây -->
