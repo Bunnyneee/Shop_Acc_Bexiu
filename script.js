@@ -2,12 +2,16 @@ const accListEl = document.getElementById("accList");
 const filterEl = document.getElementById("filterType");
 const tabEls = document.querySelectorAll(".tab");
 
+// 👉 Gắn false nếu là trang khách (index.html), true nếu là admin.html
+const IS_ADMIN = false;
+
 let accs = JSON.parse(localStorage.getItem("accs") || "[]");
 let currentTab = "available";
 
+// Hiển thị acc
 function renderAccs() {
   accListEl.innerHTML = "";
-  const filter = filterEl.value;
+  const filter = filterEl?.value || "all";
 
   const filtered = accs.filter(acc => {
     const matchTab = acc.status === currentTab;
@@ -26,22 +30,26 @@ function renderAccs() {
         <p><strong>Rank:</strong> ${acc.rank}</p>
         <div>${acc.links.map(link => `<span class="badge">${link}</span>`).join('')}</div>
       </div>
-      <button class="delete-btn" onclick="removeAcc(${acc.id})">Xoá</button>
+      ${IS_ADMIN ? `<button class="delete-btn" onclick="removeAcc(${acc.id})">Xoá</button>` : ""}
     `;
     accListEl.appendChild(card);
   });
 }
 
+// Xoá acc (chỉ admin dùng được)
 function removeAcc(id) {
+  if (!IS_ADMIN) return;
   if (!confirm("Bạn có chắc muốn xoá acc này không?")) return;
   accs = accs.filter(acc => acc.id !== id);
   localStorage.setItem("accs", JSON.stringify(accs));
   renderAccs();
 }
 
-filterEl.addEventListener("change", renderAccs);
+// Lọc theo liên kết
+filterEl?.addEventListener("change", renderAccs);
 
-tabEls.forEach(tab => {
+// Tab: Đang bán / Đã bán
+tabEls?.forEach(tab => {
   tab.addEventListener("click", () => {
     document.querySelector(".tab.active").classList.remove("active");
     tab.classList.add("active");
