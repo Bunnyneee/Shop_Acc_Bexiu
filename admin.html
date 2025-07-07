@@ -1,0 +1,30 @@
+<!DOCTYPE html><html lang="vi"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin - Shop Acc PUBG</title>
+<link rel="stylesheet" href="style.css">
+</head><body>
+<h1>Admin - Shop Acc PUBG</h1>
+<div id="login-panel">
+  Mật khẩu admin: <input type="password" id="pw">
+  <button id="login">Đăng nhập</button>
+  <p id="login-msg" class="error"></p>
+</div>
+<div id="admin-section" class="hidden">
+  <h2>Thêm acc mới</h2>
+  <form id="add-form">
+    <label>Cấp: <input type="text" id="level"></label>
+    <label>Rank: <input type="text" id="rank"></label>
+    <fieldset><legend>Chọn 2 liên kết</legend>
+      <label><input type="checkbox" value="Gmail" name="link"> Gmail</label>
+      <label><input type="checkbox" value="Game Center" name="link"> Game Center</label>
+      <label><input type="checkbox" value="Facebook" name="link"> Facebook</label>
+      <label><input type="checkbox" value="Facebook Die" name="link"> Facebook Die</label>
+    </fieldset>
+    <label>Ảnh: <input type="file" id="images" multiple accept="image/*"></label>
+    <button type="submit">Thêm acc</button>
+  </form>
+  <h2>Danh sách acc</h2>
+  <div id="admin-acc-list"></div>
+</div>
+<script src="script.js"></script>
+</body></html>
