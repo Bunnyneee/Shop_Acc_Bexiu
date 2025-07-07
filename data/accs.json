@@ -1,15 +1,3 @@
-[
-  {
-    "id": 1,
-    "level": 73,
-    "rank": "",
-    "links": [
-      "Gmail",
-      "Facebook Die"
-    ],
-    "images": [
-      "images/GhostWallPaper.png"
-    ],
-    "sold": false
-  }
-]
+{
+  "accounts": [ ... ]
+}
