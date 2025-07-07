@@ -1,160 +1,135 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin - Shop Acc Bunny</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quản lý Shop Acc</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
   <style>
     body {
-      background-color: #ffeef8;
       font-family: 'Quicksand', sans-serif;
-      padding: 20px;
+      background-color: #fff0f7;
+      color: #333;
+      padding: 2rem;
+      max-width: 700px;
+      margin: auto;
     }
-    h1 { color: #444; }
-    .section { margin-bottom: 20px; }
-    .section label { display: block; margin-top: 8px; }
-    input[type="text"], input[type="password"] {
-      padding: 6px;
-      width: 200px;
+    h1 {
+      text-align: center;
+      color: #ff69b4;
     }
-    .checkbox-group label {
-      display: inline-block;
-      margin-right: 10px;
-    }
-    .acc-preview {
-      margin-top: 12px;
-      padding: 8px;
+    form {
       background: white;
-      border: 1px solid #ddd;
+      padding: 1.5rem;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    label {
+      font-weight: 600;
+    }
+    input, select {
+      padding: 0.6rem;
       border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
     }
-    .acc-preview img {
-      max-width: 80px;
-      margin-right: 8px;
-    }
-    .btn {
-      margin-top: 10px;
-      padding: 6px 12px;
-      background-color: #ff6fa2;
+    input[type="file"] {
       border: none;
+    }
+    .checkbox-group {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    button {
+      padding: 0.8rem;
+      background-color: #ff69b4;
       color: white;
-      font-weight: bold;
-      border-radius: 6px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
       cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #e457a3;
     }
   </style>
 </head>
 <body>
-  <h1>Admin - Shop Acc Bunny</h1>
+  <h1>🌸 Quản lý Acc Bunny 🌸</h1>
+  <form id="accForm">
+    <label for="level">Cấp acc:</label>
+    <input type="text" id="level" required />
 
-  <div class="section">
-    <label>Mật khẩu admin:
-      <input type="password" id="adminPassword" />
-      <button class="btn" id="loginBtn">Đăng nhập</button>
-    </label>
-  </div>
+    <label for="rank">Rank:</label>
+    <input type="text" id="rank" required />
 
-  <div id="adminSection" style="display: none;">
-    <div class="section">
-      <h3>Thêm acc mới</h3>
-      <label>Cấp: <input type="text" id="level" /></label>
-      <label>Rank: <input type="text" id="rank" /></label>
-
-      <div class="checkbox-group">
-        <p>— Chọn 2 liên kết —</p>
-        <label><input type="checkbox" value="Gmail" /> Gmail</label>
-        <label><input type="checkbox" value="Game Center" /> Game Center</label>
-        <label><input type="checkbox" value="Facebook" /> Facebook</label>
-        <label><input type="checkbox" value="Facebook Die" /> Facebook Die</label>
-      </div>
-
-      <label>Ảnh: <input type="file" id="images" multiple /></label>
-      <button class="btn" id="addAccBtn">Thêm acc</button>
+    <label>Liên kết tài khoản (chọn 1–2 mục):</label>
+    <div class="checkbox-group">
+      <label><input type="checkbox" name="link" value="Gmail"> Gmail</label>
+      <label><input type="checkbox" name="link" value="Facebook"> Facebook</label>
+      <label><input type="checkbox" name="link" value="Facebook Die"> Facebook Die</label>
+      <label><input type="checkbox" name="link" value="Game Center"> Game Center</label>
     </div>
 
-    <div class="section">
-      <h3>Danh sách acc</h3>
-      <div id="accList"></div>
-    </div>
-  </div>
+    <label for="images">Ảnh acc (chọn nhiều ảnh nếu cần):</label>
+    <input type="file" id="images" multiple accept="image/*" required />
+
+    <button type="submit">Thêm acc</button>
+  </form>
 
   <script>
-    const ADMIN_PASSWORD = "aevfnqy43h8v334";
+    const form = document.getElementById("accForm");
+    let accs = JSON.parse(localStorage.getItem("accs") || "[]");
+    let lastId = parseInt(localStorage.getItem("lastId") || "0");
 
-    const accListEl = document.getElementById("accList");
-    const loginBtn = document.getElementById("loginBtn");
-    const adminSection = document.getElementById("adminSection");
-
-    loginBtn.onclick = () => {
-      const pass = document.getElementById("adminPassword").value;
-      if (pass === ADMIN_PASSWORD) {
-        adminSection.style.display = "block";
-      } else {
-        alert("Sai mật khẩu nha!");
-      }
-    };
-
-    const getAccs = () => JSON.parse(localStorage.getItem("accs") || "[]");
-    const saveAccs = (accs) => localStorage.setItem("accs", JSON.stringify(accs));
-
-    const renderAccs = () => {
-      const accs = getAccs().filter(a => a.status === "available");
-      accListEl.innerHTML = accs.map(acc => `
-        <div class="acc-preview">
-          <strong>ID:</strong> ${acc.id} - <strong>Cấp:</strong> ${acc.level} - <strong>Rank:</strong> ${acc.rank}<br/>
-          <strong>Liên kết:</strong> ${acc.links.join(", ")}<br/>
-          <img src="${acc.images[0]}" />
-          <button onclick="deleteAcc(${acc.id})" class="btn">Xoá</button>
-        </div>
-      `).join("");
-    };
-
-    window.deleteAcc = (id) => {
-      if (!confirm("Bạn chắc chắn xoá?")) return;
-      const accs = getAccs().filter(acc => acc.id !== id);
-      saveAccs(accs);
-      renderAccs();
-    };
-
-    document.getElementById("addAccBtn").onclick = () => {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
       const level = document.getElementById("level").value.trim();
       const rank = document.getElementById("rank").value.trim();
-      const checkboxes = document.querySelectorAll(".checkbox-group input:checked");
+      const links = Array.from(document.querySelectorAll("input[name='link']:checked")).map(el => el.value);
       const files = document.getElementById("images").files;
 
-      if (checkboxes.length !== 2) return alert("Chọn đúng 2 liên kết.");
-      if (!level || !rank || files.length === 0) return alert("Nhập đầy đủ và chọn ảnh.");
+      if (links.length < 1 || links.length > 2) {
+        alert("Vui lòng chọn 1 hoặc 2 liên kết.");
+        return;
+      }
+      if (!files.length) {
+        alert("Vui lòng chọn ít nhất 1 ảnh.");
+        return;
+      }
 
-      const links = Array.from(checkboxes).map(cb => cb.value);
-      const images = [];
+      const imageUrls = await Promise.all(Array.from(files).map(file => toBase64(file)));
 
-      const readerPromises = [...files].map(file => {
-        return new Promise(res => {
-          const reader = new FileReader();
-          reader.onload = () => res(reader.result);
-          reader.readAsDataURL(file);
-        });
+      const acc = {
+        id: ++lastId,
+        level,
+        rank,
+        links,
+        images: imageUrls,
+        status: "available"
+      };
+
+      accs.push(acc);
+      localStorage.setItem("accs", JSON.stringify(accs));
+      localStorage.setItem("lastId", lastId.toString());
+
+      alert("Đã thêm acc thành công!");
+      form.reset();
+    });
+
+    function toBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
       });
-
-      Promise.all(readerPromises).then(dataURLs => {
-        const accs = getAccs();
-        const id = accs.length ? Math.max(...accs.map(a => a.id)) + 1 : 1;
-
-        accs.push({
-          id,
-          level,
-          rank,
-          links,
-          images: dataURLs,
-          status: "available"
-        });
-
-        saveAccs(accs);
-        renderAccs();
-        alert("Đã thêm acc #" + id);
-      });
-    };
-
-    renderAccs();
+    }
   </script>
 </body>
 </html>
