@@ -1,7 +1,7 @@
 // script.js
 
 const apiBase = 'https://api.github.com/repos/Bunnyneee/Shop_Acc_Bexiu/contents/data/accs.json';
-const token = 'YOUR_GITHUB_TOKEN'; // ⚠️ Nhớ thay bằng token thật có quyền ghi
+const token = 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; // ⚠️ Nhớ thay bằng token thật có quyền ghi
 
 // Load accs từ GitHub
 async function loadAccs() {
