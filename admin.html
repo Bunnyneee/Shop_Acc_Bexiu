@@ -1,4 +1,4 @@
-<!-- admin.html -->
+<!-- admin.html with image upload and select box -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -66,11 +66,16 @@
   <label for="rank">Rank:</label>
   <input type="text" id="rank" />
 
-  <label for="lienket">Liên kết (phân cách bằng dấu phẩy):</label>
-  <input type="text" id="lienket" placeholder="Gmail, Facebook" />
+  <label for="lienket">Liên kết (chọn tối đa 2):</label>
+  <select id="lienket" multiple>
+    <option value="Gmail">Gmail</option>
+    <option value="Facebook">Facebook</option>
+    <option value="Game Center">Game Center</option>
+    <option value="Facebook Die">Facebook Die</option>
+  </select>
 
-  <label for="images">Link ảnh (dấu phẩy):</label>
-  <input type="text" id="images" placeholder="images/1.jpg, images/2.jpg" />
+  <label for="images">Chọn ảnh (tối đa 20):</label>
+  <input type="file" id="images" accept="image/*" multiple />
 
   <button onclick="addAcc()">Thêm acc</button>
   <hr>
@@ -99,6 +104,7 @@
           <strong>Acc #${acc.id}</strong><br>
           Cấp: ${acc.level} - Rank: ${acc.rank}<br>
           Liên kết: ${acc.lienket.map(lk => `<span class='badge'>${lk}</span>`).join(' ')}<br>
+          Ảnh: ${acc.images.length} tấm<br>
           Đã bán: <strong style="color: ${acc.sold ? 'green' : 'red'}">${acc.sold ? '✓' : '✗'}</strong><br>
           <button onclick="toggleSold(${acc.id})">Đổi trạng thái bán</button>
           <button onclick="deleteAcc(${acc.id})">Xoá acc</button>
@@ -110,11 +116,19 @@
     function addAcc() {
       const level = +document.getElementById('level').value;
       const rank = document.getElementById('rank').value;
-      const lienket = document.getElementById('lienket').value.split(',').map(s => s.trim()).filter(Boolean);
-      const images = document.getElementById('images').value.split(',').map(s => s.trim()).filter(Boolean);
-      const newId = Math.max(0, ...accs.map(a => a.id)) + 1;
 
-      accs.push({ id: newId, level, rank, lienket, images, sold: false });
+      const lienketOptions = document.getElementById('lienket').selectedOptions;
+      const lienket = Array.from(lienketOptions).map(opt => opt.value).slice(0, 2);
+
+      const files = document.getElementById('images').files;
+      if (files.length > 20) return alert("Tối đa 20 ảnh mỗi acc");
+
+      const imagePaths = Array.from(files).map(file => `images/${file.name}`);
+
+      const newId = Math.max(0, ...accs.map(a => a.id)) + 1;
+      accs.push({ id: newId, level, rank, lienket, images: imagePaths, sold: false });
+
+      alert("Nhớ upload ảnh vào thư mục images/ trên GitHub!");
       save();
     }
 
