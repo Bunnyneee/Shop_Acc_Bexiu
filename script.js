@@ -1,12 +1,12 @@
-// script.js
+// script.js (📂 Thay toàn bộ file này)
 
 const accListEl = document.getElementById("accList");
 const filterEl = document.getElementById("filterType");
 const tabEls = document.querySelectorAll(".tab");
+const modal = document.getElementById("imageModal");
+const modalContent = document.getElementById("modalContent");
 
-// Gắn true ở admin.html
 const IS_ADMIN = false;
-
 let accs = JSON.parse(localStorage.getItem("accs") || "[]");
 let currentTab = "available";
 
@@ -40,8 +40,20 @@ function renderAccs() {
         <button onclick="removeAcc(${acc.id})" class="delete-btn">Xoá</button>
       ` : ""}
     `;
+    card.addEventListener("click", () => showImages(acc.images));
     accListEl.appendChild(card);
   });
+}
+
+function showImages(images) {
+  if (!images || images.length === 0) return;
+  modalContent.innerHTML = `<span class="close-btn" onclick="document.getElementById('imageModal').classList.remove('active')">×</span>`;
+  images.forEach(url => {
+    const img = document.createElement("img");
+    img.src = url;
+    modalContent.appendChild(img);
+  });
+  modal.classList.add("active");
 }
 
 function removeAcc(id) {
