@@ -1,247 +1,128 @@
-<!-- admin.html (có lưu token vào localStorage) -->
+<!-- admin.html -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin - Shop Acc</title>
+  <link rel="stylesheet" href="style.css" />
   <style>
     body {
-      font-family: sans-serif;
+      font-family: 'Quicksand', sans-serif;
+      background-color: #ffeef8;
       padding: 2rem;
-      background-color: #fff0f6;
       color: #333;
     }
     h1 {
-      color: #d63384;
-    }
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: bold;
-    }
-    input, select, textarea {
-      width: 100%;
-      padding: 0.5rem;
-      margin-top: 0.25rem;
-      border-radius: 6px;
-      border: 1px solid #ccc;
+      font-size: 2rem;
       margin-bottom: 1rem;
     }
-    button {
-      padding: 0.5rem 1rem;
-      background-color: #d63384;
-      color: white;
-      border: none;
+    input, select, button {
+      padding: 0.5rem;
+      margin: 0.25rem;
       border-radius: 6px;
-      cursor: pointer;
-      margin-right: 0.5rem;
+      border: 1px solid #ccc;
     }
     .acc-item {
-      border: 1px solid #ccc;
-      padding: 1rem;
-      margin-bottom: 1rem;
       background: white;
       border-radius: 12px;
+      padding: 1rem;
+      margin: 1rem 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-    .badge {
-      background: #f783ac;
-      color: white;
-      border-radius: 8px;
-      padding: 0.25rem 0.6rem;
+    .acc-item img {
+      height: 100px;
+      margin-right: 10px;
+    }
+    .tags span {
+      background: pink;
+      padding: 0.25rem 0.5rem;
       margin-right: 0.3rem;
-      font-size: 0.75rem;
-    }
-    #loading {
-      color: #d63384;
-      font-weight: bold;
+      border-radius: 6px;
+      font-size: 0.8rem;
     }
   </style>
 </head>
 <body>
-  <h1>Quản lý acc</h1>
+  <h1>Admin - Shop Acc PUBG</h1>
+  <label>Mật khẩu admin: <input type="password" id="adminPass" /></label>
+  <button onclick="login()">Đăng nhập</button>
 
-  <label for="token">GitHub Token:</label>
-  <input type="password" id="token" placeholder="Dán GitHub token vào đây" />
-  <button onclick="saveToken()">Lưu token</button>
-  <button onclick="clearToken()">Xoá token đã lưu</button>
-
-  <label for="level">Cấp:</label>
-  <input type="number" id="level" />
-
-  <label for="rank">Rank:</label>
-  <input type="text" id="rank" />
-
-  <label for="lienket">Liên kết (chọn tối đa 2):</label>
-  <select id="lienket" multiple>
-    <option value="Gmail">Gmail</option>
-    <option value="Facebook">Facebook</option>
-    <option value="Game Center">Game Center</option>
-    <option value="Facebook Die">Facebook Die</option>
-  </select>
-
-  <label for="images">Chọn ảnh (tối đa 20):</label>
-  <input type="file" id="images" accept="image/*" multiple />
-
-  <button onclick="addAcc()">Thêm acc</button>
-  <p id="loading"></p>
-  <hr>
-
-  <div id="accList"></div>
+  <div id="adminPanel" style="display:none">
+    <h2>Danh sách acc</h2>
+    <div id="accList"></div>
+  </div>
 
   <script>
-    const username = "bunnyneee";
     const repo = "Shop_Acc_Bexiu";
-    const path = "data/accs.json";
-    let accs = [];
+    const owner = "Bunnyneee";
+    const filePath = "data/accs.json";
+    let token = localStorage.getItem("githubToken") || "";
 
-    function getToken() {
-      return document.getElementById('token').value || localStorage.getItem('github_token') || '';
+    async function login() {
+      token = document.getElementById("adminPass").value.trim();
+      if (!token) return alert("Nhập mật khẩu admin");
+      localStorage.setItem("githubToken", token);
+      loadAccounts();
     }
 
-    function saveToken() {
-      const token = document.getElementById('token').value;
-      if (token) {
-        localStorage.setItem('github_token', token);
-        alert("Đã lưu token vào trình duyệt");
-      }
+    async function loadAccounts() {
+      const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`, {
+        headers: { Authorization: `token ${token}` },
+      });
+      if (!res.ok) return alert("Lỗi khi tải dữ liệu");
+      const file = await res.json();
+      const sha = file.sha;
+      const accounts = JSON.parse(atob(file.content)).accounts;
+      document.getElementById("adminPanel").style.display = "block";
+      renderList(accounts, sha);
     }
 
-    function clearToken() {
-      localStorage.removeItem('github_token');
-      alert("Đã xoá token khỏi trình duyệt");
-    }
-
-    async function loadAccs() {
-      document.getElementById('loading').innerText = "Đang tải danh sách acc...";
-      try {
-        const res = await fetch(`https://raw.githubusercontent.com/${username}/${repo}/main/${path}`);
-        if (!res.ok) throw new Error("Không thể tải file accs.json");
-        accs = await res.json();
-        console.log("Đã tải", accs.length, "accs");
-      } catch (err) {
-        alert("Lỗi khi tải dữ liệu acc: " + err.message);
-        accs = [];
-      }
-      renderList();
-      document.getElementById('loading').innerText = "";
-    }
-
-    function renderList() {
-      const accList = document.getElementById('accList');
-      accList.innerHTML = '';
-      if (accs.length === 0) {
-        accList.innerHTML = '<p>Chưa có acc nào.</p>';
-        return;
-      }
-      accs.forEach(acc => {
-        const div = document.createElement('div');
-        div.className = 'acc-item';
+    function renderList(accounts, sha) {
+      const list = document.getElementById("accList");
+      list.innerHTML = "";
+      accounts.forEach(acc => {
+        const div = document.createElement("div");
+        div.className = "acc-item";
         div.innerHTML = `
           <strong>Acc #${acc.id}</strong><br>
-          Cấp: ${acc.level} - Rank: ${acc.rank}<br>
-          Liên kết: ${acc.lienket.map(lk => `<span class='badge'>${lk}</span>`).join(' ')}<br>
-          Ảnh: ${acc.images.length} tấm<br>
-          Đã bán: <strong style="color: ${acc.sold ? 'green' : 'red'}">${acc.sold ? '✓' : '✗'}</strong><br>
-          <button onclick="toggleSold(${acc.id})">Đổi trạng thái bán</button>
-          <button onclick="deleteAcc(${acc.id})">Xoá acc</button>
+          Cấp: ${acc.level}, Rank: ${acc.rank}<br>
+          Liên kết: <div class="tags">${acc.links.map(l => `<span>${l}</span>`).join(" ")}</div>
+          <img src="${acc.images?.[0] || ''}" /><br>
+          <button onclick="deleteAcc(${acc.id}, '${sha}')">Xoá</button>
         `;
-        accList.appendChild(div);
+        list.appendChild(div);
       });
     }
 
-    async function addAcc() {
-      const token = getToken();
-      const level = +document.getElementById('level').value;
-      const rank = document.getElementById('rank').value;
-      const lienketOptions = document.getElementById('lienket').selectedOptions;
-      const lienket = Array.from(lienketOptions).map(opt => opt.value).slice(0, 2);
-      const files = document.getElementById('images').files;
-      if (files.length > 20) return alert("Tối đa 20 ảnh mỗi acc");
-
-      const newId = Math.max(0, ...accs.map(a => a.id)) + 1;
-      const uploadedPaths = [];
-
-      document.getElementById('loading').innerText = "Đang tải ảnh...";
-      for (const file of files) {
-        const reader = new FileReader();
-        const base64 = await new Promise(resolve => {
-          reader.onload = () => resolve(reader.result.split(',')[1]);
-          reader.readAsDataURL(file);
-        });
-
-        const uploadPath = `images/${file.name}`;
-        uploadedPaths.push(uploadPath);
-
-        const checkRes = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/${uploadPath}`);
-        const exists = checkRes.status === 200;
-        const sha = exists ? (await checkRes.json()).sha : undefined;
-
-        const uploadRes = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/${uploadPath}`, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `token ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            message: `upload ${file.name}`,
-            content: base64,
-            sha: sha
-          })
-        });
-
-        if (!uploadRes.ok) return alert("Lỗi khi upload ảnh: " + file.name);
-      }
-
-      accs.push({ id: newId, level, rank, lienket, images: uploadedPaths, sold: false });
-      document.getElementById('loading').innerText = "Cập nhật danh sách...";
-      await save();
-      document.getElementById('loading').innerText = "";
-    }
-
-    function deleteAcc(id) {
-      if (confirm("Xác nhận xoá acc #" + id)) {
-        accs = accs.filter(a => a.id !== id);
-        save();
-      }
-    }
-
-    function toggleSold(id) {
-      const acc = accs.find(a => a.id === id);
-      if (acc) acc.sold = !acc.sold;
-      save();
-    }
-
-    async function save() {
-      const token = getToken();
-      const res = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/${path}`);
+    async function deleteAcc(id, oldSha) {
+      const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`, {
+        headers: { Authorization: `token ${token}` },
+      });
       const file = await res.json();
-      const content = btoa(unescape(encodeURIComponent(JSON.stringify(accs, null, 2))));
+      const data = JSON.parse(atob(file.content));
+      const newAccounts = data.accounts.filter(acc => acc.id !== id);
+      const newContent = btoa(JSON.stringify({ accounts: newAccounts }, null, 2));
 
-      const putRes = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/${path}`, {
-        method: 'PUT',
+      const updateRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`, {
+        method: "PUT",
         headers: {
-          'Authorization': `token ${token}`,
-          'Content-Type': 'application/json'
+          Authorization: `token ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          message: 'update accs.json',
-          content: content,
-          sha: file.sha
-        })
+          message: `Xoá acc #${id}`,
+          content: newContent,
+          sha: file.sha,
+        }),
       });
-
-      if (!putRes.ok) {
-        alert("Lỗi khi cập nhật accs.json");
+      if (updateRes.ok) {
+        alert("Đã xoá acc thành công");
+        loadAccounts();
       } else {
-        alert("Đã cập nhật!");
-        renderList();
+        alert("Lỗi khi cập nhật accs.json");
       }
     }
-
-    // Load token nếu có sẵn
-    document.getElementById('token').value = localStorage.getItem('github_token') || '';
-    loadAccs();
   </script>
 </body>
 </html>
