@@ -1,14 +1,19 @@
+// script.js
+
 const accListEl = document.getElementById("accList");
 const filterEl = document.getElementById("filterType");
 const tabEls = document.querySelectorAll(".tab");
 
-// 👉 Gắn false nếu là trang khách (index.html), true nếu là admin.html
+// Gắn true ở admin.html
 const IS_ADMIN = false;
 
 let accs = JSON.parse(localStorage.getItem("accs") || "[]");
 let currentTab = "available";
 
-// Hiển thị acc
+function saveAccs() {
+  localStorage.setItem("accs", JSON.stringify(accs));
+}
+
 function renderAccs() {
   accListEl.innerHTML = "";
   const filter = filterEl?.value || "all";
@@ -30,28 +35,36 @@ function renderAccs() {
         <p><strong>Rank:</strong> ${acc.rank}</p>
         <div>${acc.links.map(link => `<span class="badge">${link}</span>`).join('')}</div>
       </div>
-      ${IS_ADMIN ? `<button class="delete-btn" onclick="removeAcc(${acc.id})">Xoá</button>` : ""}
+      ${IS_ADMIN ? `
+        <button onclick="markSold(${acc.id})" class="delete-btn">Đã bán</button>
+        <button onclick="removeAcc(${acc.id})" class="delete-btn">Xoá</button>
+      ` : ""}
     `;
     accListEl.appendChild(card);
   });
 }
 
-// Xoá acc (chỉ admin dùng được)
 function removeAcc(id) {
   if (!IS_ADMIN) return;
-  if (!confirm("Bạn có chắc muốn xoá acc này không?")) return;
+  if (!confirm("Bạn có chắc muốn xoá acc này?")) return;
   accs = accs.filter(acc => acc.id !== id);
-  localStorage.setItem("accs", JSON.stringify(accs));
+  saveAccs();
   renderAccs();
 }
 
-// Lọc theo liên kết
+function markSold(id) {
+  if (!IS_ADMIN) return;
+  const acc = accs.find(acc => acc.id === id);
+  if (acc) acc.status = "sold";
+  saveAccs();
+  renderAccs();
+}
+
 filterEl?.addEventListener("change", renderAccs);
 
-// Tab: Đang bán / Đã bán
 tabEls?.forEach(tab => {
   tab.addEventListener("click", () => {
-    document.querySelector(".tab.active").classList.remove("active");
+    document.querySelector(".tab.active")?.classList.remove("active");
     tab.classList.add("active");
     currentTab = tab.dataset.tab;
     renderAccs();
