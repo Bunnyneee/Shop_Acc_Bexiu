@@ -1,10 +1,26 @@
 [
   {
     "id": 1,
-    "level": "45",
-    "rank": "Cao Thủ",
-    "links": ["Gmail", "Facebook"],
-    "images": ["images/sample1_1.jpg", "images/sample1_2.jpg"],
+    "level": 45,
+    "rank": "Cao",
+    "lienket": ["Gmail", "Facebook"],
+    "images": ["images/1a.jpg", "images/1b.jpg"],
     "sold": false
+  },
+  {
+    "id": 2,
+    "level": 35,
+    "rank": "Trung bình",
+    "lienket": ["Game Center"],
+    "images": ["images/2a.jpg"],
+    "sold": false
+  },
+  {
+    "id": 3,
+    "level": 20,
+    "rank": "Thấp",
+    "lienket": ["Facebook Die", "Gmail"],
+    "images": ["images/3a.jpg", "images/3b.jpg"],
+    "sold": true
   }
 ]
