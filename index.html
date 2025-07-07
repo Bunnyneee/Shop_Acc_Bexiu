@@ -77,6 +77,7 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       transition: transform 0.2s ease;
       cursor: pointer;
+      position: relative;
     }
     .acc-card:hover {
       transform: translateY(-4px);
@@ -106,6 +107,26 @@
       color: white;
       font-size: 0.75rem;
       font-weight: bold;
+    }
+    .action-admin {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .action-admin button {
+      padding: 0.3rem 0.5rem;
+      font-size: 0.75rem;
+      border: none;
+      border-radius: 6px;
+      background-color: #ff6fa2;
+      color: white;
+      cursor: pointer;
+    }
+    .action-admin button:hover {
+      background-color: #e45790;
     }
     .modal {
       display: none;
