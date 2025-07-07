@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Shop Acc Bé Xíu</title>
+  <title>Shop Acc Bunny</title>
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
   <style>
@@ -67,6 +67,7 @@
       overflow: hidden;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       transition: transform 0.2s ease;
+      position: relative;
     }
     .acc-card:hover {
       transform: translateY(-4px);
@@ -96,6 +97,22 @@
       color: white;
       font-size: 0.75rem;
       font-weight: bold;
+    }
+    .delete-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #ff4d6d;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: none;
+    }
+    .acc-card:hover .delete-btn {
+      display: block;
     }
   </style>
 </head>
