@@ -1,4 +1,4 @@
-<!-- admin.html with image upload and select box -->
+<!-- admin.html with auto image upload to GitHub -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -113,7 +113,8 @@
       });
     }
 
-    function addAcc() {
+    async function addAcc() {
+      const token = document.getElementById('token').value;
       const level = +document.getElementById('level').value;
       const rank = document.getElementById('rank').value;
 
@@ -123,12 +124,38 @@
       const files = document.getElementById('images').files;
       if (files.length > 20) return alert("Tối đa 20 ảnh mỗi acc");
 
-      const imagePaths = Array.from(files).map(file => `images/${file.name}`);
-
       const newId = Math.max(0, ...accs.map(a => a.id)) + 1;
-      accs.push({ id: newId, level, rank, lienket, images: imagePaths, sold: false });
+      const uploadedPaths = [];
 
-      alert("Nhớ upload ảnh vào thư mục images/ trên GitHub!");
+      for (const file of files) {
+        const reader = new FileReader();
+        const base64 = await new Promise(resolve => {
+          reader.onload = () => resolve(reader.result.split(',')[1]);
+          reader.readAsDataURL(file);
+        });
+
+        const uploadPath = `images/${file.name}`;
+        uploadedPaths.push(uploadPath);
+
+        const checkRes = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/${uploadPath}`);
+        const exists = checkRes.status === 200;
+        const sha = exists ? (await checkRes.json()).sha : undefined;
+
+        await fetch(`https://api.github.com/repos/${username}/${repo}/contents/${uploadPath}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `token ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: `upload ${file.name}`,
+            content: base64,
+            sha: sha
+          })
+        });
+      }
+
+      accs.push({ id: newId, level, rank, lienket, images: uploadedPaths, sold: false });
       save();
     }
 
