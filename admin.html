@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quản trị Shop Acc</title>
+  <title>Đăng nhập Admin</title>
   <link rel="stylesheet" href="style.css">
   <style>
     body {
@@ -16,32 +16,26 @@
       text-align: center;
       color: #ff66aa;
     }
-    .acc-form, .acc-list {
+    .hidden { display: none; }
+    .login-box, .acc-form, .acc-list {
       background: #fff;
       padding: 1rem;
       border-radius: 12px;
-      margin-bottom: 2rem;
+      margin: 1rem auto;
+      max-width: 600px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-    label {
-      display: block;
-      margin-top: 0.5rem;
-      font-weight: bold;
-    }
-    input, select, textarea {
+    input, select, textarea, button {
       width: 100%;
       padding: 0.5rem;
-      margin-top: 0.3rem;
+      margin-top: 0.5rem;
       border-radius: 8px;
       border: 1px solid #ccc;
     }
     button {
-      margin-top: 1rem;
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 8px;
       background-color: #ff66aa;
       color: white;
+      font-weight: bold;
       cursor: pointer;
     }
     .acc-item {
@@ -57,9 +51,15 @@
   </style>
 </head>
 <body>
-  <h1>Quản trị Shop Acc</h1>
+  <h1>Trang Quản Trị</h1>
 
-  <div class="acc-form">
+  <div class="login-box" id="loginBox">
+    <h2>Đăng nhập Admin</h2>
+    <input type="password" id="adminPass" placeholder="Nhập mật khẩu">
+    <button onclick="loginAdmin()">Đăng nhập</button>
+  </div>
+
+  <div class="acc-form hidden" id="formBox">
     <h2>Thêm acc mới</h2>
     <label>Level: <input type="number" id="level"></label>
     <label>Rank: <input type="text" id="rank"></label>
@@ -85,13 +85,27 @@
     <button onclick="submitAcc()">Thêm acc</button>
   </div>
 
-  <div class="acc-list">
+  <div class="acc-list hidden" id="listBox">
     <h2>Danh sách acc</h2>
     <div id="adminList"></div>
   </div>
 
   <script src="script.js"></script>
   <script>
+    const ADMIN_PASSWORD = 'bexiu2025'; // 🔐 Mật khẩu admin ở đây
+
+    function loginAdmin() {
+      const input = document.getElementById('adminPass').value;
+      if (input === ADMIN_PASSWORD) {
+        document.getElementById('loginBox').style.display = 'none';
+        document.getElementById('formBox').classList.remove('hidden');
+        document.getElementById('listBox').classList.remove('hidden');
+        loadAdminList();
+      } else {
+        alert('Sai mật khẩu!');
+      }
+    }
+
     async function submitAcc() {
       const level = +document.getElementById('level').value;
       const rank = document.getElementById('rank').value.trim();
@@ -132,8 +146,6 @@
         wrap.appendChild(div);
       });
     }
-
-    loadAdminList();
   </script>
 </body>
 </html>
