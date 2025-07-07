@@ -1,135 +1,118 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quản lý Shop Acc</title>
+  <meta charset="UTF-8">
+  <title>Quản lý Acc (Admin)</title>
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Quicksand', sans-serif;
-      background-color: #fff0f7;
-      color: #333;
+      background-color: #fff0f6;
+      margin: 0;
       padding: 2rem;
-      max-width: 700px;
-      margin: auto;
+      color: #333;
     }
     h1 {
       text-align: center;
       color: #ff69b4;
     }
-    form {
-      background: white;
-      padding: 1.5rem;
-      border-radius: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-    label {
-      font-weight: 600;
-    }
-    input, select {
-      padding: 0.6rem;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
-    }
-    input[type="file"] {
-      border: none;
-    }
-    .checkbox-group {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
+    .admin-acc {
+      background: #fff;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
     button {
-      padding: 0.8rem;
-      background-color: #ff69b4;
-      color: white;
+      margin-right: 1rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
       border: none;
-      border-radius: 12px;
-      font-size: 1rem;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      font-weight: bold;
     }
     button:hover {
-      background-color: #e457a3;
+      opacity: 0.9;
+    }
+    button:nth-child(3) {
+      background-color: #ffb6d5;
+      color: white;
+    }
+    button:nth-child(4) {
+      background-color: #ff4d6d;
+      color: white;
     }
   </style>
 </head>
 <body>
-  <h1>🌸 Quản lý Acc Bunny 🌸</h1>
-  <form id="accForm">
-    <label for="level">Cấp acc:</label>
-    <input type="text" id="level" required />
-
-    <label for="rank">Rank:</label>
-    <input type="text" id="rank" required />
-
-    <label>Liên kết tài khoản (chọn 1–2 mục):</label>
-    <div class="checkbox-group">
-      <label><input type="checkbox" name="link" value="Gmail"> Gmail</label>
-      <label><input type="checkbox" name="link" value="Facebook"> Facebook</label>
-      <label><input type="checkbox" name="link" value="Facebook Die"> Facebook Die</label>
-      <label><input type="checkbox" name="link" value="Game Center"> Game Center</label>
-    </div>
-
-    <label for="images">Ảnh acc (chọn nhiều ảnh nếu cần):</label>
-    <input type="file" id="images" multiple accept="image/*" required />
-
-    <button type="submit">Thêm acc</button>
-  </form>
+  <h1>🛠️ Quản lý Acc (Admin)</h1>
+  <div id="adminAccList"></div>
 
   <script>
-    const form = document.getElementById("accForm");
-    let accs = JSON.parse(localStorage.getItem("accs") || "[]");
-    let lastId = parseInt(localStorage.getItem("lastId") || "0");
-
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const level = document.getElementById("level").value.trim();
-      const rank = document.getElementById("rank").value.trim();
-      const links = Array.from(document.querySelectorAll("input[name='link']:checked")).map(el => el.value);
-      const files = document.getElementById("images").files;
-
-      if (links.length < 1 || links.length > 2) {
-        alert("Vui lòng chọn 1 hoặc 2 liên kết.");
-        return;
+    let accs = [
+      {
+        id: 1,
+        rank: 'Cao',
+        level: 45,
+        lienket: ['Gmail', 'Facebook'],
+        images: ['images/1a.jpg', 'images/1b.jpg'],
+        sold: false,
+      },
+      {
+        id: 2,
+        rank: 'Thấp',
+        level: 20,
+        lienket: ['Facebook Die', 'Game Center'],
+        images: ['images/2a.jpg'],
+        sold: true,
+      },
+      {
+        id: 3,
+        rank: 'Trung bình',
+        level: 35,
+        lienket: ['Gmail'],
+        images: ['images/3a.jpg', 'images/3b.jpg'],
+        sold: false,
       }
-      if (!files.length) {
-        alert("Vui lòng chọn ít nhất 1 ảnh.");
-        return;
-      }
+    ];
 
-      const imageUrls = await Promise.all(Array.from(files).map(file => toBase64(file)));
+    function renderAdminList() {
+      const list = document.getElementById('adminAccList');
+      list.innerHTML = '';
 
-      const acc = {
-        id: ++lastId,
-        level,
-        rank,
-        links,
-        images: imageUrls,
-        status: "available"
-      };
+      accs.forEach(acc => {
+        const div = document.createElement('div');
+        div.className = 'admin-acc';
 
-      accs.push(acc);
-      localStorage.setItem("accs", JSON.stringify(accs));
-      localStorage.setItem("lastId", lastId.toString());
+        div.innerHTML = `
+          <strong>Acc #${acc.id}</strong> - Cấp: ${acc.level}, Rank: ${acc.rank}<br/>
+          Liên kết: ${acc.lienket.join(', ')}<br/><br/>
+          <button onclick="markAsSold(${acc.id})">${acc.sold ? 'Khôi phục' : 'Đã bán'}</button>
+          <button onclick="deleteAcc(${acc.id})">Xoá acc</button>
+        `;
 
-      alert("Đã thêm acc thành công!");
-      form.reset();
-    });
-
-    function toBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
+        list.appendChild(div);
       });
     }
+
+    function markAsSold(id) {
+      const acc = accs.find(a => a.id === id);
+      if (acc) {
+        acc.sold = !acc.sold;
+        renderAdminList();
+        if (typeof renderAccs === 'function') renderAccs(); // cập nhật bên index.html nếu liên kết
+      }
+    }
+
+    function deleteAcc(id) {
+      if (confirm(`Bạn có chắc muốn xoá acc #${id}?`)) {
+        accs = accs.filter(a => a.id !== id);
+        renderAdminList();
+        if (typeof renderAccs === 'function') renderAccs();
+      }
+    }
+
+    renderAdminList();
   </script>
 </body>
 </html>
