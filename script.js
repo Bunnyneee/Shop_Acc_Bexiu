@@ -4,7 +4,7 @@ const filterType = document.getElementById("filterType");
 
 async function fetchAccounts() {
   const res = await fetch(
-    "https://api.github.com/repos/Bunnyneee/Shop_Acc_Bexiu/contents/data.json"
+    "https://api.github.com/repos/Bunnyneee/Shop_Acc_Bexiu/contents/data/accs.json"
   );
   const data = await res.json();
   const content = atob(data.content);
