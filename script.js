@@ -1,86 +1,130 @@
-// script.js (📂 Thay toàn bộ file này)
+// Dữ liệu mẫu
+let accs = [
+  {
+    id: 1,
+    rank: 'Cao',
+    level: 45,
+    lienket: ['Gmail', 'Facebook'],
+    images: ['images/1a.jpg', 'images/1b.jpg'],
+    sold: false,
+  },
+  {
+    id: 2,
+    rank: 'Thấp',
+    level: 20,
+    lienket: ['Facebook Die', 'Game Center'],
+    images: ['images/2a.jpg'],
+    sold: true,
+  },
+  {
+    id: 3,
+    rank: 'Trung bình',
+    level: 35,
+    lienket: ['Gmail'],
+    images: ['images/3a.jpg', 'images/3b.jpg', 'images/3c.jpg'],
+    sold: false,
+  }
+];
 
-const accListEl = document.getElementById("accList");
-const filterEl = document.getElementById("filterType");
-const tabEls = document.querySelectorAll(".tab");
-const modal = document.getElementById("imageModal");
-const modalContent = document.getElementById("modalContent");
+// Gán quyền admin
+let IS_ADMIN = localStorage.getItem('isAdmin') === 'true';
 
-const IS_ADMIN = false;
-let accs = JSON.parse(localStorage.getItem("accs") || "[]");
-let currentTab = "available";
+// Lấy DOM
+const accList = document.getElementById('accList');
+const filterType = document.getElementById('filterType');
+const tabs = document.querySelectorAll('.tab');
+let currentTab = 'available';
 
-function saveAccs() {
-  localStorage.setItem("accs", JSON.stringify(accs));
+// Giao diện đăng nhập admin đơn giản
+if (!IS_ADMIN) {
+  const pass = prompt("Nếu bạn là admin, hãy nhập mật khẩu:");
+  if (pass === 'admin123') {
+    IS_ADMIN = true;
+    localStorage.setItem('isAdmin', 'true');
+    alert('Chào admin!');
+  }
 }
 
+// Render
 function renderAccs() {
-  accListEl.innerHTML = "";
-  const filter = filterEl?.value || "all";
+  accList.innerHTML = '';
 
-  const filtered = accs.filter(acc => {
-    const matchTab = acc.status === currentTab;
-    const matchLink = filter === "all" || acc.links.includes(filter);
-    return matchTab && matchLink;
-  });
+  const filter = filterType.value;
+  const showSold = currentTab === 'sold';
 
-  filtered.forEach(acc => {
-    const card = document.createElement("div");
-    card.className = "acc-card";
-    card.innerHTML = `
-      <img src="${acc.images[0]}" alt="Acc Image">
-      <div class="acc-content">
-        <h3>Acc #${acc.id}</h3>
-        <p><strong>Cấp:</strong> ${acc.level}</p>
-        <p><strong>Rank:</strong> ${acc.rank}</p>
-        <div>${acc.links.map(link => `<span class="badge">${link}</span>`).join('')}</div>
-      </div>
-      ${IS_ADMIN ? `
-        <button onclick="markSold(${acc.id})" class="delete-btn">Đã bán</button>
-        <button onclick="removeAcc(${acc.id})" class="delete-btn">Xoá</button>
-      ` : ""}
+  accs.forEach((acc) => {
+    if (acc.sold !== showSold) return;
+    if (filter !== 'all' && !acc.lienket.includes(filter)) return;
+
+    const card = document.createElement('div');
+    card.className = 'acc-card';
+
+    const img = document.createElement('img');
+    img.src = acc.images[0];
+    img.alt = 'Acc Image';
+    img.addEventListener('click', () => showImageModal(acc.images));
+
+    const content = document.createElement('div');
+    content.className = 'acc-content';
+    content.innerHTML = `
+      <h3>Acc #${acc.id}</h3>
+      <p>Cấp: ${acc.level}</p>
+      <p>Rank: ${acc.rank}</p>
+      <p>${acc.lienket.map(lk => `<span class="badge">${lk}</span>`).join(' ')}</p>
     `;
-    card.addEventListener("click", () => showImages(acc.images));
-    accListEl.appendChild(card);
+
+    if (IS_ADMIN) {
+      const adminPanel = document.createElement('div');
+      adminPanel.className = 'action-admin';
+
+      const btnDelete = document.createElement('button');
+      btnDelete.textContent = 'Xoá';
+      btnDelete.onclick = () => {
+        if (confirm(`Bạn có chắc muốn xoá acc #${acc.id}?`)) {
+          accs = accs.filter(a => a.id !== acc.id);
+          renderAccs();
+        }
+      };
+
+      const btnSold = document.createElement('button');
+      btnSold.textContent = acc.sold ? 'Khôi phục' : 'Đã bán';
+      btnSold.onclick = () => {
+        acc.sold = !acc.sold;
+        renderAccs();
+      };
+
+      adminPanel.appendChild(btnSold);
+      adminPanel.appendChild(btnDelete);
+      card.appendChild(adminPanel);
+    }
+
+    card.appendChild(img);
+    card.appendChild(content);
+    accList.appendChild(card);
   });
 }
 
-function showImages(images) {
-  if (!images || images.length === 0) return;
-  modalContent.innerHTML = `<span class="close-btn" onclick="document.getElementById('imageModal').classList.remove('active')">×</span>`;
-  images.forEach(url => {
-    const img = document.createElement("img");
-    img.src = url;
-    modalContent.appendChild(img);
-  });
-  modal.classList.add("active");
+// Modal xem ảnh
+function showImageModal(images) {
+  const modal = document.getElementById('imageModal');
+  const modalContent = document.getElementById('modalContent');
+  modalContent.innerHTML = `
+    <span class="close-btn" onclick="document.getElementById('imageModal').classList.remove('active')">×</span>
+    ${images.map(src => `<img src="${src}" />`).join('')}
+  `;
+  modal.classList.add('active');
 }
 
-function removeAcc(id) {
-  if (!IS_ADMIN) return;
-  if (!confirm("Bạn có chắc muốn xoá acc này?")) return;
-  accs = accs.filter(acc => acc.id !== id);
-  saveAccs();
-  renderAccs();
-}
-
-function markSold(id) {
-  if (!IS_ADMIN) return;
-  const acc = accs.find(acc => acc.id === id);
-  if (acc) acc.status = "sold";
-  saveAccs();
-  renderAccs();
-}
-
-filterEl?.addEventListener("change", renderAccs);
-
-tabEls?.forEach(tab => {
-  tab.addEventListener("click", () => {
-    document.querySelector(".tab.active")?.classList.remove("active");
-    tab.classList.add("active");
+// Sự kiện
+filterType.addEventListener('change', renderAccs);
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
     currentTab = tab.dataset.tab;
     renderAccs();
   });
 });
 
+// Khởi động
 renderAccs();
