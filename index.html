@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Shop Acc Bunny</title>
+  <title>Shop Acc Bé Xíu</title>
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
   <style>
@@ -139,6 +139,15 @@
       <!-- Các acc sẽ được hiển thị ở đây -->
     </div>
   </div>
+  <script>
+    function removeAcc(id) {
+      if (!confirm("Bạn có chắc muốn xoá acc này không?")) return;
+      const accs = JSON.parse(localStorage.getItem("accs") || "[]");
+      const updated = accs.filter(acc => acc.id !== id);
+      localStorage.setItem("accs", JSON.stringify(updated));
+      location.reload();
+    }
+  </script>
   <script src="script.js"></script>
 </body>
 </html>
