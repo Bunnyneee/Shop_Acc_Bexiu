@@ -26,33 +26,19 @@ let accs = [
   }
 ];
 
-// Gán quyền admin
-let IS_ADMIN = localStorage.getItem('isAdmin') === 'true';
-
-// Lấy DOM
 const accList = document.getElementById('accList');
 const filterType = document.getElementById('filterType');
 const tabs = document.querySelectorAll('.tab');
+
 let currentTab = 'available';
 
-// Giao diện đăng nhập admin đơn giản
-if (!IS_ADMIN) {
-  const pass = prompt("Nếu bạn là admin, hãy nhập mật khẩu:");
-  if (pass === 'admin123') {
-    IS_ADMIN = true;
-    localStorage.setItem('isAdmin', 'true');
-    alert('Chào admin!');
-  }
-}
-
-// Render
 function renderAccs() {
   accList.innerHTML = '';
 
   const filter = filterType.value;
   const showSold = currentTab === 'sold';
 
-  accs.forEach((acc) => {
+  accs.forEach(acc => {
     if (acc.sold !== showSold) return;
     if (filter !== 'all' && !acc.lienket.includes(filter)) return;
 
@@ -72,31 +58,6 @@ function renderAccs() {
       <p>Rank: ${acc.rank}</p>
       <p>${acc.lienket.map(lk => `<span class="badge">${lk}</span>`).join(' ')}</p>
     `;
-
-    if (IS_ADMIN) {
-      const adminPanel = document.createElement('div');
-      adminPanel.className = 'action-admin';
-
-      const btnDelete = document.createElement('button');
-      btnDelete.textContent = 'Xoá';
-      btnDelete.onclick = () => {
-        if (confirm(`Bạn có chắc muốn xoá acc #${acc.id}?`)) {
-          accs = accs.filter(a => a.id !== acc.id);
-          renderAccs();
-        }
-      };
-
-      const btnSold = document.createElement('button');
-      btnSold.textContent = acc.sold ? 'Khôi phục' : 'Đã bán';
-      btnSold.onclick = () => {
-        acc.sold = !acc.sold;
-        renderAccs();
-      };
-
-      adminPanel.appendChild(btnSold);
-      adminPanel.appendChild(btnDelete);
-      card.appendChild(adminPanel);
-    }
 
     card.appendChild(img);
     card.appendChild(content);
