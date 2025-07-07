@@ -1,4 +1,4 @@
-<!-- admin.html (bản sửa lỗi hiển thị acc + log loading + kiểm tra fetch JSON) -->
+<!-- admin.html (có lưu token vào localStorage) -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -63,6 +63,8 @@
 
   <label for="token">GitHub Token:</label>
   <input type="password" id="token" placeholder="Dán GitHub token vào đây" />
+  <button onclick="saveToken()">Lưu token</button>
+  <button onclick="clearToken()">Xoá token đã lưu</button>
 
   <label for="level">Cấp:</label>
   <input type="number" id="level" />
@@ -92,6 +94,23 @@
     const repo = "Shop_Acc_Bexiu";
     const path = "data/accs.json";
     let accs = [];
+
+    function getToken() {
+      return document.getElementById('token').value || localStorage.getItem('github_token') || '';
+    }
+
+    function saveToken() {
+      const token = document.getElementById('token').value;
+      if (token) {
+        localStorage.setItem('github_token', token);
+        alert("Đã lưu token vào trình duyệt");
+      }
+    }
+
+    function clearToken() {
+      localStorage.removeItem('github_token');
+      alert("Đã xoá token khỏi trình duyệt");
+    }
 
     async function loadAccs() {
       document.getElementById('loading').innerText = "Đang tải danh sách acc...";
@@ -132,7 +151,7 @@
     }
 
     async function addAcc() {
-      const token = document.getElementById('token').value;
+      const token = getToken();
       const level = +document.getElementById('level').value;
       const rank = document.getElementById('rank').value;
       const lienketOptions = document.getElementById('lienket').selectedOptions;
@@ -194,7 +213,7 @@
     }
 
     async function save() {
-      const token = document.getElementById('token').value;
+      const token = getToken();
       const res = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/${path}`);
       const file = await res.json();
       const content = btoa(unescape(encodeURIComponent(JSON.stringify(accs, null, 2))));
@@ -220,6 +239,8 @@
       }
     }
 
+    // Load token nếu có sẵn
+    document.getElementById('token').value = localStorage.getItem('github_token') || '';
     loadAccs();
   </script>
 </body>
